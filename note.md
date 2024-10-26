@@ -1,0 +1,4 @@
+-obtain p1,p2,p3
+-get angle 
+-verify (state)
+-procedure (camera view: didUpdateWidget)
