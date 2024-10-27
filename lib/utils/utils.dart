@@ -42,11 +42,11 @@ double angle(
   }
 
 PushUpState? isPushUp(double angleElbow, PushUpState current) {
-  final umbralElbow = 60.0;
-  final umbralELbowExt = 160.0;
-  if (current == PushUpState.neutral && angleElbow > umbralELbowExt && angleElbow < 180.0)
+  const umbralElbow = 60.0;
+  const umbralELbowExt = 160.0;
+  if (current == PushUpState.neutral && angleElbow > umbralELbowExt && angleElbow < 180.0) {
     return PushUpState.init;
-  else if (current == PushUpState.init && angleElbow < umbralElbow && angleElbow > 40.0)
+  } else if (current == PushUpState.init && angleElbow < umbralElbow && angleElbow > 40.0)
     return PushUpState.complete;
   return null;
 }

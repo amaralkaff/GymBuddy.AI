@@ -1,6 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+import 'package:test_1/models/exercise_timer_model.dart';
 import 'package:test_1/painters/pose_painter.dart';
 
 import 'camera_view.dart';
@@ -22,7 +24,8 @@ class DetectorView extends StatefulWidget {
     this.onDetectorViewModeChanged,
     this.onCameraLensDirectionChanged,
   });
-  
+
+
   final PosePainter? posePainter; // Make nullable
   final String title;
   final CustomPaint? customPaint;
@@ -43,8 +46,8 @@ class _DetectorViewState extends State<DetectorView> {
 
   @override
   void initState() {
-    _mode = widget.initialDetectionMode;
     super.initState();
+    _mode = widget.initialDetectionMode;
   }
 
   @override
@@ -58,6 +61,7 @@ class _DetectorViewState extends State<DetectorView> {
             onDetectorViewModeChanged: _onDetectorViewModeChanged,
             initialCameraLensDirection: widget.initialCameraLensDirection,
             onCameraLensDirectionChanged: widget.onCameraLensDirectionChanged,
+            exerciseTitle: widget.title,
           )
         : GalleryView(
             title: widget.title,
