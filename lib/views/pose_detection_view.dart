@@ -4,13 +4,12 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../painters/pose_painter.dart';
-import '../models/exercise_timer_model.dart';
 import '../models/push_up_model.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'detector_view.dart';
 
 class PoseDetectorView extends StatefulWidget {
-  static const String exerciseTitle = 'Push-up Counter'; // Changed from title to exerciseTitle
+  static const String exerciseTitle = 'Push-up Counter';
   
   const PoseDetectorView({super.key});
 
@@ -38,24 +37,14 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ExerciseTimerCubit(context, PoseDetectorView.exerciseTitle),
-      child: BlocListener<ExerciseTimerCubit, ExerciseTimerState>(
-        listener: (context, state) {
-          if (state.status == TimerStatus.completed) {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          }
-        },
-        child: DetectorView(
-          title: PoseDetectorView.exerciseTitle,
-          customPaint: _customPaint,
-          text: _text,
-          onImage: _processImage,
-          posePainter: _posePainter,
-          initialCameraLensDirection: _cameraLensDirection,
-          onCameraLensDirectionChanged: (value) => _cameraLensDirection = value,
-        ),
-      ),
+    return DetectorView(
+      title: PoseDetectorView.exerciseTitle,
+      customPaint: _customPaint,
+      text: _text,
+      onImage: _processImage,
+      posePainter: _posePainter,
+      initialCameraLensDirection: _cameraLensDirection,
+      onCameraLensDirectionChanged: (value) => _cameraLensDirection = value,
     );
   }
 

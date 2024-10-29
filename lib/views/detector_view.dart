@@ -1,8 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
-import 'package:test_1/models/exercise_timer_model.dart';
 import 'package:test_1/painters/pose_painter.dart';
 
 import 'camera_view.dart';

@@ -7,87 +7,141 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:test_1/models/exercise_completion_model.dart';
+import 'package:test_1/models/exercise_stats_model.dart';
 import 'package:test_1/models/push_up_model.dart';
 import 'package:test_1/models/sit_up_model.dart';
+import 'package:test_1/models/weight_manager.dart';
 import 'package:test_1/painters/pose_painter.dart';
+import 'package:test_1/services/pushup_service.dart';
 import 'package:test_1/utils/utils.dart' as utils;
-import '../widgets/exercise_stats_widget.dart';
 
 class ExerciseStatsWidget extends StatelessWidget {
   final String exerciseType;
   final int reps;
-  static const int maxTime = 30; // 30 seconds workout
 
   const ExerciseStatsWidget({
-    Key? key,
+    super.key,
     required this.exerciseType,
     required this.reps,
-  }) : super(key: key);
+  });
+
+  Future<void> _submitWorkout(BuildContext context) async {
+    if (exerciseType == 'Push-up Counter') {
+      final weightManager = context.read<WeightManager>();
+      
+      // Check if we have a valid weight
+      if (!weightManager.hasWeight()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please set your weight first'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final int currentWeight = weightManager.getWeight();
+      final int currentReps = reps;
+
+      // Debug print
+      print('About to submit - Weight: $currentWeight (${currentWeight.runtimeType})');
+      print('About to submit - Reps: $currentReps (${currentReps.runtimeType})');
+
+      try {
+        final pushupService = PushupService();
+        final result = await pushupService.submitPushups(
+          weight: currentWeight,
+          pushups: currentReps,
+        );
+
+        // Handle successful submission
+        context.read<ExerciseStatsModel>().updateStats(
+          exerciseType: exerciseType,
+          repCount: currentReps,
+          caloriesPerRep: double.tryParse(result['Kalori_yang_terbakar_per_push_up']?.toString() ?? '0'),
+          totalCalories: double.tryParse(result['Total_kalori_yang_terbakar']?.toString() ?? '0'),
+        );
+
+        if (context.mounted) {
+          context.read<ExerciseCompletion>().markExerciseComplete(exerciseType);
+          
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Workout submitted successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to submit workout: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.black54,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.5),
-          width: 2,
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            exerciseType,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(height: 8),
-          StreamBuilder<int>(
-            stream: Stream.periodic(
-              const Duration(seconds: 1),
-              (x) => maxTime - x - 1,
-            ).take(maxTime),
-            builder: (context, snapshot) {
-              final timeLeft = snapshot.data ?? maxTime;
-              
-              // Handle exercise completion
-              if (timeLeft <= 0) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _handleExerciseCompletion(context);
-                });
-              }
-
-              return Text(
-                '${(timeLeft ~/ 60).toString().padLeft(2, '0')}:${(timeLeft % 60).toString().padLeft(2, '0')}',
+          child: Column(
+            children: [
+              Text(
+                exerciseType,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Reps: $reps',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
-              );
-            },
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Reps: $reps',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () => _submitWorkout(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 16,
             ),
           ),
-        ],
-      ),
+          child: const Text(
+            'Done',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      ],
     );
   }
 
-  void _handleExerciseCompletion(BuildContext context) {
+  void _handleExerciseCompletion(BuildContext context, String exerciseType) {
     // Mark exercise as completed
     context.read<ExerciseCompletion>().markExerciseComplete(exerciseType);
     
@@ -261,6 +315,7 @@ Widget _liveFeedBody() {
     child: Stack(
       fit: StackFit.expand,
       children: <Widget>[
+        // Camera Preview
         RepaintBoundary(
           child: Center(
             child: _changingCameraLens
@@ -273,10 +328,10 @@ Widget _liveFeedBody() {
                   ),
           ),
         ),
+        // Counter and Done Button - Top Right
         Positioned(
           top: 50,
-          left: 0,
-          right: 0,
+          right: 20,
           child: RepaintBoundary(
             child: ExerciseStatsWidget(
               exerciseType: widget.exerciseTitle,
@@ -399,7 +454,6 @@ Widget _liveFeedBody() {
     );
   }
 
-  // ... rest of the existing code remains the same ...
 
   @override
   Widget _backButton() => Positioned(

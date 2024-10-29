@@ -1,11 +1,11 @@
-// lib/main.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_1/models/exercise_completion_model.dart';
+import 'package:test_1/models/exercise_stats_model.dart';
 import 'package:test_1/models/push_up_model.dart';
 import 'package:test_1/models/sit_up_model.dart';
+import 'package:test_1/models/user_manager.dart';
 import 'package:test_1/views/splash_screen.dart';
 
 void main() async {
@@ -15,7 +15,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -24,7 +24,7 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  
+
   runApp(const MyApp());
 }
 
@@ -35,6 +35,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<UserManager>(
+          create: (context) => UserManager(),
+        ),
         BlocProvider<PushUpCounter>(
           create: (context) => PushUpCounter(),
         ),
@@ -43,6 +46,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<ExerciseCompletion>(
           create: (context) => ExerciseCompletion(),
+        ),
+        BlocProvider<ExerciseStatsModel>(
+          create: (context) => ExerciseStatsModel(),
         ),
       ],
       child: MaterialApp(
