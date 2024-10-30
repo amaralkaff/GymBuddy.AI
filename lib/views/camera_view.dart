@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:test_1/models/exercise_completion_model.dart';
 import 'package:test_1/models/exercise_stats_model.dart';
 import 'package:test_1/models/push_up_model.dart';
@@ -27,45 +26,29 @@ class ExerciseStatsWidget extends StatelessWidget {
 
   Future<void> _submitWorkout(BuildContext context) async {
     if (exerciseType == 'Push-up Counter') {
-      final weightManager = context.read<WeightManager>();
-      
-      // Check if we have a valid weight
-      if (!weightManager.hasWeight()) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please set your weight first'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      final int currentWeight = weightManager.getWeight();
-      final int currentReps = reps;
-
-      // Debug print
-      print('About to submit - Weight: $currentWeight (${currentWeight.runtimeType})');
-      print('About to submit - Reps: $currentReps (${currentReps.runtimeType})');
-
       try {
+        final weightManager = context.read<WeightManager>();
+        final currentWeight = weightManager.getWeight();
+
         final pushupService = PushupService();
         final result = await pushupService.submitPushups(
           weight: currentWeight,
-          pushups: currentReps,
-        );
-
-        // Handle successful submission
-        context.read<ExerciseStatsModel>().updateStats(
-          exerciseType: exerciseType,
-          repCount: currentReps,
-          caloriesPerRep: double.tryParse(result['Kalori_yang_terbakar_per_push_up']?.toString() ?? '0'),
-          totalCalories: double.tryParse(result['Total_kalori_yang_terbakar']?.toString() ?? '0'),
+          pushups: reps, // Changed to match API expectation
         );
 
         if (context.mounted) {
+          // Update stats with API response
+          context.read<ExerciseStatsModel>().updateStats(
+            exerciseType: exerciseType,
+            repCount: reps,
+            caloriesPerRep: double.tryParse(
+                result['Kalori_yang_terbakar_per_push_up'] ?? '0'),
+            totalCalories: double.tryParse(
+                result['Total_kalori_yang_terbakar'] ?? '0'),
+          );
+
           context.read<ExerciseCompletion>().markExerciseComplete(exerciseType);
           
-          // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Workout submitted successfully!'),
@@ -90,26 +73,21 @@ class ExerciseStatsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.black54,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                exerciseType,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
+              const Icon(Icons.fitness_center, color: Colors.white),
+              const SizedBox(width: 8),
               Text(
                 'Reps: $reps',
                 style: const TextStyle(
@@ -120,43 +98,29 @@ class ExerciseStatsWidget extends StatelessWidget {
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () => _submitWorkout(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 32,
-              vertical: 16,
+          const SizedBox(height: 16),
+          SizedBox(
+            width: 120,
+            child: ElevatedButton(
+              onPressed: () => _submitWorkout(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Done'),
             ),
           ),
-          child: const Text(
-            'Done',
-            style: TextStyle(fontSize: 18),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
-
-  void _handleExerciseCompletion(BuildContext context, String exerciseType) {
-    // Mark exercise as completed
-    context.read<ExerciseCompletion>().markExerciseComplete(exerciseType);
-    
-    // Reset appropriate counter
-    if (exerciseType == 'Push-up Counter') {
-      context.read<PushUpCounter>().resetCounter();
-    } else if (exerciseType == 'Sit-up Counter') {
-      context.read<SitUpCounter>().resetCounter();
-    }
-
-    // Navigate back to splash screen
-    Navigator.of(context).popUntil((route) => route.isFirst);
-  }
 }
-
 class CameraView extends StatefulWidget {
   const CameraView({
     super.key,

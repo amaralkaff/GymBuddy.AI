@@ -2,9 +2,7 @@
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../painters/pose_painter.dart';
-import '../models/push_up_model.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'detector_view.dart';
 
@@ -49,31 +47,30 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
   }
 
   Future<void> _processImage(InputImage inputImage) async {
-    if (!_canProcess) return;
-    if (_isBusy) return;
+    if (!_canProcess || _isBusy) return;
     _isBusy = true;
-    setState(() {
-      _text = '';
-    });
 
-    final poses = await _poseDetector.processImage(inputImage);
-    if (inputImage.metadata?.size != null &&
-        inputImage.metadata?.rotation != null) {
-      final painter = PosePainter(
-        poses,
-        inputImage.metadata!.size,
-        inputImage.metadata!.rotation,
-        _cameraLensDirection,
-      );
-      _customPaint = CustomPaint(painter: painter);
-      _posePainter = painter;
-    } else {
-      _text = 'Poses found: ${poses.length}\n\n';
-      _customPaint = null;
-    }
-    _isBusy = false;
-    if (mounted) {
-      setState(() {});
+    try {
+      final poses = await _poseDetector.processImage(inputImage);
+      
+      if (inputImage.metadata?.size != null && 
+          inputImage.metadata?.rotation != null) {
+            
+        final painter = PosePainter(
+          poses,
+          inputImage.metadata!.size,
+          inputImage.metadata!.rotation,
+          _cameraLensDirection,
+        );
+        
+        _customPaint = CustomPaint(painter: painter);
+        _posePainter = painter;
+      }
+    } catch (e) {
+      debugPrint('Error detecting pose: $e');
+    } finally {
+      _isBusy = false;
+      if (mounted) setState(() {});
     }
   }
 }

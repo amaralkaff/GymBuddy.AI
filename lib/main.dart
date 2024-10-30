@@ -9,6 +9,7 @@ import 'package:test_1/models/exercise_stats_model.dart';
 import 'package:test_1/models/push_up_model.dart';
 import 'package:test_1/models/sit_up_model.dart';
 import 'package:test_1/models/user_manager.dart';
+import 'package:test_1/models/weight_manager.dart';
 import 'package:test_1/views/auth/login_screen.dart';
 import 'package:test_1/views/splash_screen.dart';
 
@@ -33,33 +34,36 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+ const MyApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<AuthCubit>(
-          create: (context) => AuthCubit(),
-          lazy: false, // Make sure it's created immediately
-        ),
-        BlocProvider<UserManager>(
-          create: (context) => UserManager(),
-        ),
-        BlocProvider<PushUpCounter>(
-          create: (context) => PushUpCounter(),
-        ),
-        BlocProvider<SitUpCounter>(
-          create: (context) => SitUpCounter(),
-        ),
-        BlocProvider<ExerciseCompletion>(
-          create: (context) => ExerciseCompletion(),
-        ),
-        BlocProvider<ExerciseStatsModel>(
-          create: (context) => ExerciseStatsModel(),
-        ),
-      ],
-      child: BlocBuilder<AuthCubit, AuthState>(
+ @override
+ Widget build(BuildContext context) {
+   return MultiBlocProvider(
+     providers: [
+       BlocProvider<AuthCubit>(
+         create: (context) => AuthCubit(),
+         lazy: false,
+       ),
+       BlocProvider<UserManager>(
+         create: (context) => UserManager(),
+       ),
+       BlocProvider<WeightManager>( // Added WeightManager provider
+         create: (context) => WeightManager(),
+       ),
+       BlocProvider<PushUpCounter>(
+         create: (context) => PushUpCounter(),
+       ),
+       BlocProvider<SitUpCounter>(
+         create: (context) => SitUpCounter(), 
+       ),
+       BlocProvider<ExerciseCompletion>(
+         create: (context) => ExerciseCompletion(),
+       ),
+       BlocProvider<ExerciseStatsModel>(
+         create: (context) => ExerciseStatsModel(),
+       ),
+     ],
+     child: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {
           return MaterialApp(
             title: 'Workout AI',
