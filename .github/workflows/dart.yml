@@ -25,6 +25,9 @@ jobs:
           channel: 'stable'
           cache: true  # Add caching for faster setup
 
+      - name: Clean Flutter
+        run: flutter clean
+
       - name: Install dependencies
         run: flutter pub get
 
