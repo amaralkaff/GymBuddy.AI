@@ -112,6 +112,7 @@ flutter run
    - Start monitoring session
 
 
+
 ## 🔄 Manufacturing Adaptation
 
 Our exercise monitoring system demonstrates key capabilities needed for equipment monitoring:
