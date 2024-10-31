@@ -157,7 +157,7 @@ lib/
 ## 🤝 Contact
 
 For hackathon-related inquiries:
-- Team Name: [Amar Alkaff]
+- Team Name: [Workout.ai]
 - Contact: [amaralkaff@gmail.com]
 
 ## 📝 License
