@@ -9,9 +9,10 @@
     <uses-feature android:name="android.hardware.camera.autofocus"/>
 
     <application
-        android:label="test_1"
+        android:label="workout ai"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon"
+        android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

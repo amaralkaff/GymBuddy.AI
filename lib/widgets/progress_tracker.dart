@@ -1,6 +1,6 @@
 // lib/widgets/progress_tracker.dart
 import 'package:flutter/material.dart';
-import 'package:test_1/services/workout_info_service.dart';
+import 'package:workout_ai/services/workout_info_service.dart';
 
 class ProgressTracker extends StatelessWidget {
   final List<WorkoutInfo> workouts;
@@ -19,7 +19,10 @@ class ProgressTracker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (error != null) {
@@ -29,13 +32,74 @@ class ProgressTracker extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.red.shade50,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.red.shade200),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(error!, style: TextStyle(color: Colors.red.shade700)),
-            TextButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
+            Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.red.shade700),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    error!.contains('Authentication')
+                        ? 'Please log in again to view your progress'
+                        : 'Unable to load workout progress',
+                    style: TextStyle(
+                      color: Colors.red.shade700,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              error!,
+              style: TextStyle(color: Colors.red.shade700),
+            ),
+            const SizedBox(height: 12),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Try Again'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.red.shade400,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (workouts.isEmpty) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Column(
+          children: [
+            Icon(Icons.fitness_center, size: 48, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'No workouts yet',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Complete your first workout to see your progress here',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
             ),
           ],
         ),
@@ -62,14 +126,15 @@ class ProgressTracker extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.1)),
       ),
       child: Column(
         children: [
           Row(
             children: [
               Icon(
-                workout.woName.contains('Push') 
-                    ? Icons.fitness_center 
+                workout.woName.contains('Push')
+                    ? Icons.fitness_center
                     : Icons.accessibility_new,
                 color: color,
               ),
@@ -91,7 +156,7 @@ class ProgressTracker extends StatelessWidget {
                         _buildStatChip(
                           '${workout.sumWo} sets',
                           color,
-                          Colors.blue.withOpacity(0.1),
+                          color.withOpacity(0.1),
                         ),
                         const SizedBox(width: 8),
                         _buildStatChip(
@@ -128,4 +193,3 @@ class ProgressTracker extends StatelessWidget {
     );
   }
 }
-

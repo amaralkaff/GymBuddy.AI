@@ -1,14 +1,16 @@
 // lib/widgets/weight_confirmation_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:workout_ai/models/weight_manager.dart';
 
 class WeightConfirmationDialog extends StatefulWidget {
   final int currentWeight;
 
   const WeightConfirmationDialog({
-    Key? key,
+    super.key,
     required this.currentWeight,
-  }) : super(key: key);
+  });
 
   @override
   State<WeightConfirmationDialog> createState() => _WeightConfirmationDialogState();
@@ -17,6 +19,7 @@ class WeightConfirmationDialog extends StatefulWidget {
 class _WeightConfirmationDialogState extends State<WeightConfirmationDialog> {
   late TextEditingController _weightController;
   final _formKey = GlobalKey<FormState>();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -28,6 +31,32 @@ class _WeightConfirmationDialogState extends State<WeightConfirmationDialog> {
   void dispose() {
     _weightController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submitWeight() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final weight = int.parse(_weightController.text);
+      context.read<WeightManager>().updateWeight(weight);
+      
+      if (!mounted) return;
+      Navigator.of(context).pop(weight);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating weight: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
   }
 
   @override
@@ -47,6 +76,7 @@ class _WeightConfirmationDialogState extends State<WeightConfirmationDialog> {
             TextFormField(
               controller: _weightController,
               keyboardType: TextInputType.number,
+              enabled: !_isSubmitting,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: const InputDecoration(
                 labelText: 'Weight (kg)',
@@ -68,16 +98,18 @@ class _WeightConfirmationDialogState extends State<WeightConfirmationDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              Navigator.of(context).pop(int.parse(_weightController.text));
-            }
-          },
-          child: const Text('Confirm'),
+          onPressed: _isSubmitting ? null : _submitWeight,
+          child: _isSubmitting
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Confirm'),
         ),
       ],
     );

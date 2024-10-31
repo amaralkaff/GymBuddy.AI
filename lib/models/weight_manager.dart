@@ -6,7 +6,7 @@ class WeightManager extends Cubit<int> {
   // Initialize with a default value (0) instead of null
   WeightManager() : super(0);
 
-  void setWeight(int weight) {
+  void updateWeight(int weight) {
     emit(weight.toInt()); // Ensure it's an integer
   }
 

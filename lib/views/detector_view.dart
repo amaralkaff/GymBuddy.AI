@@ -1,7 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
-import 'package:test_1/painters/pose_painter.dart';
+import 'package:workout_ai/painters/pose_painter.dart';
 
 import 'camera_view.dart';
 import 'gallery_view.dart';

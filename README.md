@@ -1,106 +1,163 @@
-# Workout AI App Analysis
+# Workout AI Monitor 💪
 
-## Project Overview
-This is a Flutter application that uses machine learning (specifically Google's ML Kit) to detect and count exercises (push-ups and sit-ups) through the device's camera. The app features real-time pose detection, exercise counting, and a timer functionality.
+[![Hackathon](https://img.shields.io/badge/Hackathon-2024-orange.svg)]()
+[![Flutter](https://img.shields.io/badge/flutter-v3.0+-blue.svg)](https://flutter.dev/)
+[![ML Kit](https://img.shields.io/badge/ML%20Kit-latest-green.svg)](https://developers.google.com/ml-kit)
 
-## Key Components
+## 🎯 Project Vision
 
-### 1. Main Architecture
-- Uses Flutter Bloc for state management
-- Implements ML Kit for pose detection
-- Features a camera-based UI with real-time feedback
-- Supports both portrait and landscape orientations
+We're transforming manufacturing equipment monitoring by adapting advanced movement detection technology, initially proven through exercise tracking, to create an innovative solution for real-time machinery health monitoring.
 
-### 2. Core Features
-- Push-up detection and counting
-- Sit-up detection and counting
-- Real-time pose visualization
-- Exercise timer
-- Camera controls (zoom, exposure, lens switching)
-- Gallery support for image analysis
+### 💡 Innovation Highlight
+Our unique approach demonstrates how human movement analysis technology can be adapted to monitor mechanical movements, providing:
+- Real-time anomaly detection
+- Pattern-based prediction
+- Visual movement analysis
+- Instant performance feedback
 
-### 3. Key Files Structure
+## ⚙️ Current Implementation
 
-#### Views
-- `splash_screen.dart`: Main entry point showing available workouts
-- `detector_view.dart`: Base view for pose detection
-- `camera_view.dart`: Camera handling and UI
-- `pose_detection_view.dart`: Push-up specific detection
-- `sit_up_detector_view.dart`: Sit-up specific detection
+### Demo Features
+Our prototype currently demonstrates capability through:
+- Real-time movement tracking using ML Kit
+- Pattern recognition and analysis
+- Performance monitoring dashboard
+- Instant anomaly detection
 
-#### Models
-- `push_up_model.dart`: State management for push-ups
-- `sit_up_model.dart`: State management for sit-ups
+```dart
+Key endpoints for integration:
 
-#### Utils
-- `utils.dart`: General utilities and angle calculations
-- `sit_up_utils.dart`: Sit-up specific calculations
-- `coordinates_translator.dart`: Camera coordinate translation
+Base URL: https://backend-workout-ai.vercel.app/api
 
-#### Painters
-- `pose_painter.dart`: Visualization of detected poses
+Authentication:
+POST /userInfo    - Register monitoring system
+POST /login       - System authentication
+DELETE /logout    - End monitoring session
 
-## Technical Implementation Details
+Monitoring:
+POST /pushup      - Submit movement data
+GET /getWoInfo    - Retrieve monitoring history
+```
 
-### 1. Exercise Detection Logic
-- Uses angle calculations between body landmarks
-- Push-ups: Monitors elbow angle
-- Sit-ups: Tracks torso angle relative to legs
-- States: neutral → init → complete
+## 🚀 Technology Stack
 
-### 2. ML Kit Integration
-- Uses PoseDetector for real-time pose detection
-- Processes camera feed frame by frame
-- Extracts landmarks for key body points
-- Translates coordinates for proper visualization
+### Core Technologies
+- **Frontend:** Flutter
+- **Vision Analysis:** Google ML Kit
+- **Pattern Recognition:** Custom algorithms
+- **Real-time Processing:** Native integration
 
-### 3. State Management
-- Uses BLoC pattern with two main states:
-  - PushUpCounter: Manages push-up states and count
-  - SitUpCounter: Manages sit-up states and count
+### Key Components
+- Movement pattern detection
+- Real-time analysis engine
+- Performance analytics
+- Alert system
 
-### 4. UI Components
-- Splash screen with workout cards
-- Real-time pose visualization
-- Counter display
-- Timer with controls
-- Camera controls (zoom, exposure, flip)
+## 📊 Technical Demonstration
 
-## Key Features Implementation
+### Pattern Recognition
+```dart
+// Example of our pattern detection system
+final bloc = BlocProvider.of<PushUpCounter>(context);
+      for (final pose in widget.posePainter!.poses) {
+        PoseLandmark getPoseLandmark(PoseLandmarkType type1) {
+          final PoseLandmark joint1 = pose.landmarks[type1]!;
+          return joint1;
+        }
 
-### Exercise Detection Process
-1. Camera feed is processed frame by frame
-2. ML Kit detects pose landmarks
-3. Utils calculate angles between relevant points
-4. State machine determines exercise state
-5. Counter updates based on completed repetitions
+        p1 = getPoseLandmark(PoseLandmarkType.rightShoulder);
+        p2 = getPoseLandmark(PoseLandmarkType.rightElbow);
+        p3 = getPoseLandmark(PoseLandmarkType.rightWrist);
+      }
+      if (p1 != null && p2 != null && p3 != null) {
+        final rtaAngle = utils.angle(p1!, p2!, p3!);
+        final rta = utils.isPushUp(rtaAngle, bloc.state);
+        print("Angle: ${rtaAngle.toStringAsFixed(2)}");
+        if (rta != null) {
+          if (rta == PushUpState.init) {
+            bloc.setPushUpState(rta);
+          } else if (rta == PushUpState.complete) {
+            bloc.incrementCounter();
+            bloc.setPushUpState(PushUpState.neutral);
+          }
+        }
+      }
 
-### Camera Handling
-- Supports both front and back cameras
-- Handles different device orientations
-- Provides zoom and exposure controls
-- Includes gallery integration for static images
+```
 
-### User Interface
-- Clean, modern design with cards
-- Real-time feedback with pose overlay
-- Exercise counter and timer
-- Intuitive navigation and controls
+## Monitoring History
+```dart
+// Example of our monitoring history
+GET https://backend-workout-ai.vercel.app/api/getWoInfo
+```
 
-## Performance Considerations
-- Uses ResolutionPreset.high for optimal performance
-- Implements busy flags to prevent frame processing overlap
-- Handles device orientation changes efficiently
-- Manages camera resources properly
+## 🎥 Demo Setup
 
-## Security and Permissions
-- Requires camera permissions
-- All processing done on-device
-- No data storage or external transmission
+[Demo Video](https://drive.google.com/file/d/1RjME5DJMyukPOe5sMGEFG8VQvNoyjhWw/view?usp=sharing)
 
-## Extensibility
-The architecture allows for easy addition of:
-- New exercise types
-- Additional pose detection features
-- Enhanced analytics
-- Different UI themes or layouts
+1. Install dependencies:
+```bash
+flutter pub get
+```
+
+2. Run the application:
+```bash
+flutter run
+```
+
+3. Access the monitoring dashboard:
+   - Launch application
+   - Login with provided credentials
+   - Start monitoring session
+
+
+## 🔄 Manufacturing Adaptation
+
+Our exercise monitoring system demonstrates key capabilities needed for equipment monitoring:
+
+| Exercise Feature | Manufacturing Application |
+|-----------------|--------------------------|
+| Movement Detection | Equipment Operation Tracking |
+| Form Analysis | Movement Pattern Analysis |
+| Rep Counting | Cycle Monitoring |
+| Performance Tracking | Equipment Health Metrics |
+
+## 📈 Business Impact
+
+### Cost Reduction
+- Minimize unplanned downtime
+- Reduce maintenance costs
+- Prevent major equipment failures
+
+### Efficiency Improvement
+- Real-time monitoring capability
+- Predictive maintenance
+- Performance optimization
+
+## 🛠️ Project Structure
+```
+lib/
+├── models/         # Data models
+├── services/       # API integration
+├── utils/          # Analysis tools
+├── views/          # Monitoring interfaces
+├── widgets/        # UI components
+└── painters/       # Visual overlays
+```
+
+## 🎯 Future Development
+
+### Planned Enhancements
+- Equipment-specific adaptations
+- Advanced pattern recognition
+- IoT sensor integration
+- Expanded analytics dashboard
+
+## 🤝 Contact
+
+For hackathon-related inquiries:
+- Team Name: [Amar Alkaff]
+- Contact: [amaralkaff@gmail.com]
+
+## 📝 License
+This project is licensed under the MIT License

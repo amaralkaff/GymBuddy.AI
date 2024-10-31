@@ -1,12 +1,13 @@
 buildscript {
-    ext.kotlin_version = '1.8.10'
+    ext.kotlin_version = '1.7.10'
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.0'
+        classpath 'com.android.tools.build:gradle:8.0.0' // Updated to support Gradle 8.0
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -24,10 +25,17 @@ subprojects {
     afterEvaluate {
         if (project.hasProperty("android")) {
             android {
-                compileSdkVersion 34
+                compileSdkVersion 35 // Updated to support newer AndroidX dependencies
                 defaultConfig {
-                    minSdkVersion 21
-                    targetSdkVersion 34
+                    minSdkVersion 23
+                    targetSdkVersion 35 // Matched with compileSdkVersion
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled true
+                        shrinkResources false
+                        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                    }
                 }
             }
         }

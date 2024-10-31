@@ -5,37 +5,26 @@ plugins {
 }
 
 android {
-    namespace "com.example.test_1"
-    compileSdk flutter.compileSdkVersion
+    namespace "com.workout.ai"
+    compileSdk 35 // Updated to support latest androidx dependencies
     ndkVersion flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11 // Updated for Gradle 8.0 compatibility
+        targetCompatibility JavaVersion.VERSION_11 // Updated for Gradle 8.0 compatibility
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11' // Updated for Gradle 8.0 compatibility
     }
 
     defaultConfig {
-        applicationId "com.example.test_1"
-        minSdk 21
-        targetSdk flutter.targetSdkVersion
+        applicationId "com.workout.ai"
+        minSdk 23
+        targetSdk 35 // Updated to match compileSdk
         versionCode flutter.versionCode
         versionName flutter.versionName
-
-        // GPU acceleration options
-        aaptOptions {
-            cruncherEnabled false
-            useNewCruncher false
-        }
-    }
-
-    dexOptions {
-        javaMaxHeapSize "4g"
-        preDexLibraries true
-        threadCount 8
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -44,6 +33,7 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
+            debuggable false
         }
     }
 }

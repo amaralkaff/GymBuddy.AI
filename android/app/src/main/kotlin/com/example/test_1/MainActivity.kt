@@ -1,4 +1,4 @@
-package com.example.test_1
+package com.workout.ai
 
 import io.flutter.embedding.android.FlutterActivity
 

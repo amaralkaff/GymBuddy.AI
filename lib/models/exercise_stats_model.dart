@@ -20,6 +20,14 @@ class ExerciseStats {
 
 class ExerciseStatsModel extends Cubit<Map<String, ExerciseStats>> {
   ExerciseStatsModel() : super({});
+
+  get exerciseType => null;
+
+  get repCount => null;
+
+  get caloriesPerRep => null;
+
+  get totalCalories => null;
   
   void updateStats({
     required String exerciseType,
