@@ -26,6 +26,10 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+        shell: /usr/bin/bash -e {0}
+        env:
+          FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.0.0-x64
+          PUB_CACHE: /home/runner/.pub-cache
 
       # Uncomment this step to verify the use of 'dart format' on each commit.
       # - name: Verify formatting
