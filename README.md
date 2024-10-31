@@ -122,7 +122,6 @@ Our exercise monitoring system demonstrates key capabilities needed for equipmen
 | Movement Detection | Equipment Operation Tracking |
 | Form Analysis | Movement Pattern Analysis |
 | Rep Counting | Cycle Monitoring |
-| Performance Tracking | Equipment Health Metrics |
 
 ## 📈 Business Impact
 
