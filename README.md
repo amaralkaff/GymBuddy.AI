@@ -17,7 +17,9 @@ Our unique approach demonstrates how human movement analysis technology can be a
 
 ## 🎥 Demo Setup
 
-[Watch the demo video here](https://drive.google.com/file/d/1RjME5DJMyukPOe5sMGEFG8VQvNoyjhWw/preview)
+<a href="https://drive.google.com/file/d/1RjME5DJMyukPOe5sMGEFG8VQvNoyjhWw/preview" target="_blank" style="position: relative; display: inline-block;">
+    <img src="assets/preview-video.png" alt="Demo Video" style="width: 25%; max-width: 110px;">
+</a>
 
 ## ⚙️ Current Implementation
 
