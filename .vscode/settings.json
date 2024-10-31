@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/home/amangly/development/flutter/bin/test_1/linux"
+    "cmake.sourceDirectory": "/home/amangly/development/flutter/bin/test_1/linux",
+    "cmake.ignoreCMakeListsMissing": true
 }
