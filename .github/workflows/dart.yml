@@ -21,7 +21,7 @@ jobs:
       # Set up Flutter
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.9'  # Updated to latest stable version
+          flutter-version: '3.24.4'  # Updated to required version for SDK compatibility
           channel: 'stable'
           cache: true  # Add caching for faster setup
 
