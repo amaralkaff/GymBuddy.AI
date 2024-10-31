@@ -369,8 +369,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
       child: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state.status != AuthStatus.authenticated) {
