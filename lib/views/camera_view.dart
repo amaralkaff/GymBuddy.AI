@@ -13,6 +13,7 @@ import 'package:workout_ai/painters/pose_painter.dart';
 import 'package:workout_ai/services/pushup_service.dart';
 import 'package:workout_ai/utils/utils.dart' as utils;
 import 'package:workout_ai/widgets/workout_completion_dialog.dart';
+import 'dart:developer' as developer;
 
 class ExerciseStatsWidget extends StatelessWidget {
   final String exerciseType;
@@ -151,7 +152,6 @@ class _CameraViewState extends State<CameraView> {
   static List<CameraDescription> _cameras = [];
   CameraController? _controller;
   int _cameraIndex = -1;
-  double _currentZoomLevel = 1.0;
 
   bool _changingCameraLens = false;
 
@@ -195,21 +195,6 @@ class _CameraViewState extends State<CameraView> {
     });
   }
 
-  void _pauseTimer() {
-    _timer?.cancel();
-    setState(() {
-      _isTimerRunning = false;
-    });
-  }
-
-  void _resetTimer() {
-    _timer?.cancel();
-    setState(() {
-      _seconds = 0;
-      _isTimerRunning = false;
-    });
-  }
-
   String _formatTime(int seconds) {
     int minutes = seconds ~/ 60;
     int remainingSeconds = seconds % 60;
@@ -238,7 +223,7 @@ class _CameraViewState extends State<CameraView> {
       if (p1 != null && p2 != null && p3 != null) {
         final rtaAngle = utils.angle(p1!, p2!, p3!);
         final rta = utils.isPushUp(rtaAngle, bloc.state);
-        print("Angle: ${rtaAngle.toStringAsFixed(2)}");
+        developer.log("Angle: ${rtaAngle.toStringAsFixed(2)}");
         if (rta != null) {
           if (rta == PushUpState.init) {
             bloc.setPushUpState(rta);
@@ -469,8 +454,6 @@ Widget _liveFeedBody() {
     try {
       await _controller!.initialize();
       if (!mounted) return;
-
-      _currentZoomLevel = await _controller!.getMinZoomLevel();
 
       await _controller!.startImageStream(_processCameraImage);
 

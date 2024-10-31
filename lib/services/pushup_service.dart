@@ -5,7 +5,6 @@ import 'package:workout_ai/services/auth_service.dart';
 
 class PushupService {
   static const String baseUrl = 'https://backend-workout-ai.vercel.app/api';
-  final AuthService _authService = AuthService();
 
   Future<Map<String, dynamic>> submitPushups({
     required int pushUps,

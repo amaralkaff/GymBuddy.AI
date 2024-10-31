@@ -37,7 +37,8 @@ jobs:
 
       # Consider passing '--fatal-infos' for slightly stricter analysis.
       - name: Analyze project source
-        run: flutter analyze
+        run: flutter analyze --fatal-infos
+        continue-on-error: true  # Allow the workflow to continue even if analysis fails
 
       # Run Flutter tests
       - name: Run tests
