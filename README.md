@@ -15,7 +15,12 @@ Our unique approach demonstrates how human movement analysis technology can be a
 - Visual movement analysis
 - Instant performance feedback
 
+## 🎥 Demo Setup
+
+[Watch the demo video here](https://drive.google.com/file/d/1RjME5DJMyukPOe5sMGEFG8VQvNoyjhWw/preview)
+
 ## ⚙️ Current Implementation
+
 
 ### Demo Features
 Our prototype currently demonstrates capability through:
@@ -91,9 +96,7 @@ final bloc = BlocProvider.of<PushUpCounter>(context);
 GET https://backend-workout-ai.vercel.app/api/getWoInfo
 ```
 
-## 🎥 Demo Setup
 
-[Demo Video](https://drive.google.com/file/d/1RjME5DJMyukPOe5sMGEFG8VQvNoyjhWw/view?usp=sharing)
 
 1. Install dependencies:
 ```bash
