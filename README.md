@@ -12,6 +12,7 @@ We're transforming manufacturing equipment monitoring by adapting advanced movem
 Our unique approach demonstrates how human movement analysis technology can be adapted to monitor mechanical movements, providing:
 - Real-time anomaly detection
 - Pattern-based prediction
+- Visual movement analysis
 
 ## 🎥 Demo Setup
 
@@ -26,7 +27,6 @@ Our unique approach demonstrates how human movement analysis technology can be a
 Our prototype currently demonstrates capability through:
 - Real-time movement tracking using ML Kit
 - Pattern recognition and analysis
-- Performance monitoring dashboard
 - Instant anomaly detection
 
 ```dart
