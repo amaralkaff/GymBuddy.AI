@@ -20,7 +20,7 @@ class DetectorView extends StatefulWidget {
     this.initialCameraLensDirection = CameraLensDirection.back,
     this.onCameraFeedReady,
     this.onDetectorViewModeChanged,
-    this.onCameraLensDirectionChanged,
+    this.onCameraLensDirectionChanged, required String exerciseTitle,
   });
 
 

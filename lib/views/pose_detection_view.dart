@@ -43,6 +43,7 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
       posePainter: _posePainter,
       initialCameraLensDirection: _cameraLensDirection,
       onCameraLensDirectionChanged: (value) => _cameraLensDirection = value,
+      exerciseTitle: PoseDetectorView.exerciseTitle,
     );
   }
 

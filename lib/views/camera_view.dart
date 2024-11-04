@@ -11,6 +11,7 @@ import 'package:workout_ai/models/push_up_model.dart';
 import 'package:workout_ai/models/sit_up_model.dart';
 import 'package:workout_ai/painters/pose_painter.dart';
 import 'package:workout_ai/services/pushup_service.dart';
+import 'package:workout_ai/utils/sit_up_utils.dart';
 import 'package:workout_ai/utils/utils.dart' as utils;
 import 'package:workout_ai/widgets/workout_completion_dialog.dart';
 import 'dart:developer' as developer;
@@ -29,33 +30,33 @@ class ExerciseStatsWidget extends StatelessWidget {
     if (exerciseType == 'Push-up Counter') {
       try {
         final pushupService = PushupService();
-        
+
         // Test submission first
         await pushupService.testSubmitPushups();
-        
+
         final result = await pushupService.submitPushups(
           pushUps: reps,
         );
 
         if (context.mounted) {
           context.read<ExerciseStatsModel>().updateStats(
-            exerciseType: exerciseType,
-            repCount: reps,
-            caloriesPerRep: double.tryParse(
-                result['Kalori_yang_terbakar_per_push_up'] ?? '0'),
-            totalCalories: double.tryParse(
-                result['Total_kalori_yang_terbakar'] ?? '0'),
-          );
+                exerciseType: exerciseType,
+                repCount: reps,
+                caloriesPerRep: double.tryParse(
+                    result['Kalori_yang_terbakar_per_push_up'] ?? '0'),
+                totalCalories: double.tryParse(
+                    result['Total_kalori_yang_terbakar'] ?? '0'),
+              );
 
           context.read<ExerciseCompletion>().markExerciseComplete(exerciseType);
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Workout submitted successfully!'),
               backgroundColor: Colors.green,
             ),
           );
-          
+
           Navigator.of(context).popUntil((route) => route.isFirst);
         }
       } catch (e) {
@@ -209,27 +210,65 @@ class _CameraViewState extends State<CameraView> {
       if (!_isTimerRunning) {
         _startTimer();
       }
-      final bloc = BlocProvider.of<PushUpCounter>(context);
-      for (final pose in widget.posePainter!.poses) {
-        PoseLandmark getPoseLandmark(PoseLandmarkType type1) {
-          final PoseLandmark joint1 = pose.landmarks[type1]!;
-          return joint1;
-        }
 
-        p1 = getPoseLandmark(PoseLandmarkType.rightShoulder);
-        p2 = getPoseLandmark(PoseLandmarkType.rightElbow);
-        p3 = getPoseLandmark(PoseLandmarkType.rightWrist);
+      if (widget.exerciseTitle == 'Push-up Counter') {
+        _handlePushUpDetection();
+      } else {
+        _handleSitUpDetection();
       }
-      if (p1 != null && p2 != null && p3 != null) {
-        final rtaAngle = utils.angle(p1!, p2!, p3!);
-        final rta = utils.isPushUp(rtaAngle, bloc.state);
-        developer.log("Angle: ${rtaAngle.toStringAsFixed(2)}");
-        if (rta != null) {
-          if (rta == PushUpState.init) {
-            bloc.setPushUpState(rta);
-          } else if (rta == PushUpState.complete) {
+    }
+  }
+
+  void _handlePushUpDetection() {
+    final bloc = BlocProvider.of<PushUpCounter>(context);
+    for (final pose in widget.posePainter!.poses) {
+      PoseLandmark getPoseLandmark(PoseLandmarkType type1) {
+        final PoseLandmark joint1 = pose.landmarks[type1]!;
+        return joint1;
+      }
+
+      p1 = getPoseLandmark(PoseLandmarkType.rightShoulder);
+      p2 = getPoseLandmark(PoseLandmarkType.rightElbow);
+      p3 = getPoseLandmark(PoseLandmarkType.rightWrist);
+    }
+    if (p1 != null && p2 != null && p3 != null) {
+      final rtaAngle = utils.angle(p1!, p2!, p3!);
+      final rta = utils.isPushUp(rtaAngle, bloc.state);
+      developer.log("Angle: ${rtaAngle.toStringAsFixed(2)}");
+      if (rta != null) {
+        if (rta == PushUpState.init) {
+          bloc.setPushUpState(rta);
+        } else if (rta == PushUpState.complete) {
+          bloc.incrementCounter();
+          bloc.setPushUpState(PushUpState.neutral);
+        }
+      }
+    }
+  }
+
+  void _handleSitUpDetection() {
+    final bloc = BlocProvider.of<SitUpCounter>(context);
+    for (final pose in widget.posePainter!.poses) {
+      if (pose.landmarks.isEmpty) continue;
+
+      final rightShoulder = pose.landmarks[PoseLandmarkType.rightShoulder];
+      final rightHip = pose.landmarks[PoseLandmarkType.rightHip];
+      final rightKnee = pose.landmarks[PoseLandmarkType.rightKnee];
+
+      if (rightShoulder != null && rightHip != null && rightKnee != null) {
+        final torsoAngle = calculateTorsoAngle(
+          rightShoulder,
+          rightHip,
+          rightKnee,
+        );
+
+        final sitUpState = isSitUp(torsoAngle, bloc.state);
+        if (sitUpState != null) {
+          if (sitUpState == SitUpState.init) {
+            bloc.setSitUpState(sitUpState);
+          } else if (sitUpState == SitUpState.complete) {
             bloc.incrementCounter();
-            bloc.setPushUpState(PushUpState.neutral);
+            bloc.setSitUpState(SitUpState.neutral);
           }
         }
       }
@@ -248,197 +287,197 @@ class _CameraViewState extends State<CameraView> {
     return Scaffold(body: _liveFeedBody());
   }
 
-Widget _liveFeedBody() {
-  if (_cameras.isEmpty) return Container();
-  if (_controller == null) return Container();
-  if (_controller?.value.isInitialized == false) return Container();
-  
-  return Container(
-    color: Colors.black,
-    child: Stack(
-      fit: StackFit.expand,
-      children: <Widget>[
-        RepaintBoundary(
-          child: Center(
-            child: _changingCameraLens
-                ? const Center(
-                    child: Text('Changing camera lens'),
-                  )
-                : CameraPreview(
-                    _controller!,
-                    child: RepaintBoundary(child: widget.customPaint),
-                  ),
-          ),
-        ),
-        Positioned(
-          top: 50,
-          right: 20,
-          child: RepaintBoundary(
-            child: Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.fitness_center, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Reps: ${widget.exerciseTitle == 'Push-up Counter'
-                            ? context.select((PushUpCounter c) => c.counter)
-                            : context.select((SitUpCounter c) => c.counter)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: 120,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        final count = widget.exerciseTitle == 'Push-up Counter'
-                            ? context.read<PushUpCounter>().counter
-                            : context.read<SitUpCounter>().counter;
-                            
-                        if (count == 0) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Complete at least one repetition'),
-                              backgroundColor: Colors.orange,
-                            ),
-                          );
-                          return;
-                        }
+  Widget _liveFeedBody() {
+    if (_cameras.isEmpty) return Container();
+    if (_controller == null) return Container();
+    if (_controller?.value.isInitialized == false) return Container();
 
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => Center(
-                            child: WorkoutCompletionDialog(
-                              exerciseType: widget.exerciseTitle,
-                              reps: count,
-                            ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Done'),
+    return Container(
+      color: Colors.black,
+      child: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          RepaintBoundary(
+            child: Center(
+              child: _changingCameraLens
+                  ? const Center(
+                      child: Text('Changing camera lens'),
+                    )
+                  : CameraPreview(
+                      _controller!,
+                      child: RepaintBoundary(child: widget.customPaint),
                     ),
-                  ),
-                ],
-              ),
             ),
           ),
-        ),
-        if (_isTimerRunning)
           Positioned(
             top: 50,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _formatTime(_seconds),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+            right: 20,
+            child: RepaintBoundary(
+              child: Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.fitness_center, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Reps: ${widget.exerciseTitle == 'Push-up Counter' ? context.select((PushUpCounter c) => c.counter) : context.select((SitUpCounter c) => c.counter)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 120,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final count =
+                              widget.exerciseTitle == 'Push-up Counter'
+                                  ? context.read<PushUpCounter>().counter
+                                  : context.read<SitUpCounter>().counter;
+
+                          if (count == 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('Complete at least one repetition'),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                            return;
+                          }
+
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => Center(
+                              child: WorkoutCompletionDialog(
+                                exerciseType: widget.exerciseTitle,
+                                reps: count,
+                              ),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Done'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-        _backButton(),
-        _switchLiveCameraToggle(),
-        _detectionViewModeToggle(),
-      ],
-    ),
-  );
-}
+          if (_isTimerRunning)
+            Positioned(
+              top: 50,
+              left: 20,
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _formatTime(_seconds),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          _backButton(),
+          _switchLiveCameraToggle(),
+          _detectionViewModeToggle(),
+        ],
+      ),
+    );
+  }
 
   Widget _backButton() => Positioned(
-    top: 40,
-    left: 8,
-    child: SizedBox(
-      height: 50.0,
-      width: 50.0,
-      child: FloatingActionButton(
-        heroTag: Object(),
-        onPressed: () {
-          if (widget.exerciseTitle == 'Push-up Counter') {
-            context.read<PushUpCounter>().resetCounter();
-          } else {
-            context.read<SitUpCounter>().resetCounter();
-          }
-          Navigator.of(context).pop();
-        },
-        backgroundColor: Colors.black54,
-        child: const Icon(
-          Icons.arrow_back_ios_outlined,
-          size: 20,
+        top: 40,
+        left: 8,
+        child: SizedBox(
+          height: 50.0,
+          width: 50.0,
+          child: FloatingActionButton(
+            heroTag: Object(),
+            onPressed: () {
+              if (widget.exerciseTitle == 'Push-up Counter') {
+                context.read<PushUpCounter>().resetCounter();
+              } else {
+                context.read<SitUpCounter>().resetCounter();
+              }
+              Navigator.of(context).pop();
+            },
+            backgroundColor: Colors.black54,
+            child: const Icon(
+              Icons.arrow_back_ios_outlined,
+              size: 20,
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
   Widget _detectionViewModeToggle() => Positioned(
-    bottom: 8,
-    left: 8,
-    child: SizedBox(
-      height: 50.0,
-      width: 50.0,
-      child: FloatingActionButton(
-        heroTag: Object(),
-        onPressed: widget.onDetectorViewModeChanged,
-        backgroundColor: Colors.black54,
-        child: const Icon(
-          Icons.photo_library_outlined,
-          size: 25,
+        bottom: 8,
+        left: 8,
+        child: SizedBox(
+          height: 50.0,
+          width: 50.0,
+          child: FloatingActionButton(
+            heroTag: Object(),
+            onPressed: widget.onDetectorViewModeChanged,
+            backgroundColor: Colors.black54,
+            child: const Icon(
+              Icons.photo_library_outlined,
+              size: 25,
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
   Widget _switchLiveCameraToggle() => Positioned(
-    bottom: 8,
-    right: 8,
-    child: SizedBox(
-      height: 50.0,
-      width: 50.0,
-      child: FloatingActionButton(
-        heroTag: Object(),
-        onPressed: _switchLiveCamera,
-        backgroundColor: Colors.black54,
-        child: Icon(
-          Platform.isIOS
-              ? Icons.flip_camera_ios_outlined
-              : Icons.flip_camera_android_outlined,
-          size: 25,
+        bottom: 8,
+        right: 8,
+        child: SizedBox(
+          height: 50.0,
+          width: 50.0,
+          child: FloatingActionButton(
+            heroTag: Object(),
+            onPressed: _switchLiveCamera,
+            backgroundColor: Colors.black54,
+            child: Icon(
+              Platform.isIOS
+                  ? Icons.flip_camera_ios_outlined
+                  : Icons.flip_camera_android_outlined,
+              size: 25,
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
   Future<void> _startLiveFeed() async {
     final camera = _cameras[_cameraIndex];

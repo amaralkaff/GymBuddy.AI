@@ -1,7 +1,7 @@
-// lib/utils/sit_up_utils.dart
+import 'dart:math';
 
-import 'dart:math' as math;
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
+import 'package:vector_math/vector_math.dart' show Vector2, degrees;
 import '../models/sit_up_model.dart';
 
 double calculateTorsoAngle(
@@ -9,42 +9,49 @@ double calculateTorsoAngle(
   PoseLandmark hip,
   PoseLandmark knee,
 ) {
-  try {
-    final radians = math.atan2(
-      knee.y - hip.y,
-      knee.x - hip.x,
-    ) -
-    math.atan2(
-      shoulder.y - hip.y,
-      shoulder.x - hip.x,
-    );
-    
-    double degrees = radians * 180.0 / math.pi;
-    degrees = degrees.abs();
-    if (degrees > 180.0) {
-      degrees = 360.0 - degrees;
-    }
-    return degrees;
-  } catch (e) {
-    print('Error calculating torso angle: $e');
-    return 0.0;
+  // Calculate vectors
+  final hipToShoulder = Vector2(
+    shoulder.x - hip.x,
+    shoulder.y - hip.y,
+  );
+
+  final hipToKnee = Vector2(
+    knee.x - hip.x,
+    knee.y - hip.y,
+  );
+
+  // Calculate angle between vectors
+  double dot = hipToShoulder.dot(hipToKnee);
+  double norm = hipToShoulder.length * hipToKnee.length;
+
+  double angle = degrees(acos(dot / norm));
+
+  // Adjust angle based on relative positions
+  if (shoulder.y > hip.y) {
+    angle = 360 - angle;
   }
+
+  return angle;
 }
 
-SitUpState? isSitUp(double torsoAngle, SitUpState current) {
-  // More lenient angle thresholds
-  const minLyingAngle = 140.0;    // Nearly flat
-  const maxRaisedAngle = 80.0;    // Upper body raised
-  
-  try {
-    if (current == SitUpState.neutral && torsoAngle > minLyingAngle) {
-      return SitUpState.init;       // Person is lying down
-    } else if (current == SitUpState.init && torsoAngle < maxRaisedAngle) {
-      return SitUpState.complete;   // Person has lifted up
-    }
-    return null;
-  } catch (e) {
-    print('Error determining sit-up state: $e');
-    return null;
+SitUpState? isSitUp(double angle, SitUpState currentState) {
+  const double upThreshold = 75.0; // Angle when torso is upright
+  const double downThreshold = 30.0; // Angle when lying down
+
+  switch (currentState) {
+    case SitUpState.neutral:
+      if (angle <= downThreshold) {
+        return SitUpState.init;
+      }
+      break;
+    case SitUpState.init:
+      if (angle >= upThreshold) {
+        return SitUpState.complete;
+      }
+      break;
+    case SitUpState.complete:
+      return SitUpState.neutral;
   }
+
+  return null;
 }

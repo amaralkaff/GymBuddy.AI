@@ -1,28 +1,26 @@
-// lib/widgets/workout_completion_dialog.dart
+// lib/widgets/situp_completion_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:workout_ai/models/exercise_completion_model.dart';
 import 'package:workout_ai/models/exercise_stats_model.dart';
-import 'package:workout_ai/services/pushup_service.dart';
 import 'package:workout_ai/services/situp_service.dart';
 import 'package:workout_ai/views/splash_screen.dart';
 
-class WorkoutCompletionDialog extends StatefulWidget {
+class SitUpCompletionDialog extends StatefulWidget {
   final String exerciseType;
   final int reps;
 
-  const WorkoutCompletionDialog({
+  const SitUpCompletionDialog({
     super.key,
     required this.exerciseType,
     required this.reps,
   });
 
   @override
-  State<WorkoutCompletionDialog> createState() =>
-      _WorkoutCompletionDialogState();
+  State<SitUpCompletionDialog> createState() => _SitUpCompletionDialogState();
 }
 
-class _WorkoutCompletionDialogState extends State<WorkoutCompletionDialog> {
+class _SitUpCompletionDialogState extends State<SitUpCompletionDialog> {
   final _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
 
@@ -31,19 +29,10 @@ class _WorkoutCompletionDialogState extends State<WorkoutCompletionDialog> {
     setState(() => _isSubmitting = true);
 
     try {
-      Map<String, dynamic> result;
-
-      if (widget.exerciseType == 'Push-up Counter') {
-        final pushupService = PushupService();
-        result = await pushupService.submitPushups(
-          pushUps: widget.reps,
-        );
-      } else {
-        final situpService = SitUpService();
-        result = await situpService.submitSitUps(
-          sitUps: widget.reps,
-        );
-      }
+      final situpService = SitUpService();
+      final result = await situpService.submitSitUps(
+        sitUps: widget.reps,
+      );
 
       if (!mounted) return;
 
@@ -52,9 +41,7 @@ class _WorkoutCompletionDialogState extends State<WorkoutCompletionDialog> {
               exerciseType: widget.exerciseType,
               repCount: widget.reps,
               caloriesPerRep: double.tryParse(
-                widget.exerciseType == 'Push-up Counter'
-                    ? result['Kalori_yang_terbakar_per_push_up'] ?? '0'
-                    : result['Kalori_yang_terbakar_per_sit_up'] ?? '0',
+                result['Kalori_yang_terbakar_per_sit_up'] ?? '0',
               ),
               totalCalories: double.tryParse(
                 result['Total_kalori_yang_terbakar'] ?? '0',

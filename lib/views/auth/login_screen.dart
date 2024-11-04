@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          
+
           setState(() {
             _isLoginView = true;
             _emailController.clear();
@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } catch (e) {
         if (!mounted) return;
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Registration failed: ${e.toString()}'),
@@ -178,16 +178,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   Text(
-                    _isLoginView 
-                      ? 'Enter your email and password to sign in'
-                      : 'Create your account, it takes less than a minute.',
+                    _isLoginView
+                        ? 'Enter your email and password to sign in'
+                        : 'Create your account, it takes less than a minute.',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 32),
-                  
                   if (!_isLoginView) ...[
                     TextFormField(
                       controller: _usernameController,
@@ -273,7 +272,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ],
-                  
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _emailController,
@@ -313,7 +311,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       contentPadding: const EdgeInsets.all(16),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: Colors.grey[600],
                         ),
                         onPressed: () {
@@ -330,7 +330,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  
                   if (_isLoginView) ...[
                     Align(
                       alignment: Alignment.centerRight,
@@ -347,18 +346,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ],
-                  
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading 
-                        ? null 
-                        : _isLoginView ? _login : _register,
+                      onPressed: _isLoading
+                          ? null
+                          : _isLoginView
+                              ? _login
+                              : _register,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isLoginView 
-                          ? const Color(0xFFE8FE54)
-                          : Colors.black,
+                        backgroundColor: _isLoginView
+                            ? const Color(0xFFE8FE54)
+                            : Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -366,24 +366,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         elevation: 0,
                       ),
                       child: _isLoading
-                        ? SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                _isLoginView ? Colors.black : Colors.white,
+                          ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  _isLoginView ? Colors.black : Colors.white,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              _isLoginView ? 'Log in' : 'Create an Account',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    _isLoginView ? Colors.black : Colors.white,
                               ),
                             ),
-                          )
-                        : Text(
-                            _isLoginView ? 'Log in' : 'Create an Account',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: _isLoginView ? Colors.black : Colors.white,
-                            ),
-                          ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -391,13 +392,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        _isLoginView 
-                          ? 'Don\'t have an account?' 
-                          : 'Already have an account?',
+                        _isLoginView
+                            ? 'Don\'t have an account?'
+                            : 'Already have an account?',
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                       TextButton(
-                        onPressed: () => setState(() => _isLoginView = !_isLoginView),
+                        onPressed: () =>
+                            setState(() => _isLoginView = !_isLoginView),
                         child: Text(
                           _isLoginView ? 'Sign up' : 'Log in',
                           style: const TextStyle(
