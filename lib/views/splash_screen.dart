@@ -11,6 +11,7 @@ import 'package:workout_ai/views/pose_detection_view.dart';
 import 'package:workout_ai/views/sit_up_detector_view.dart';
 import 'package:workout_ai/widgets/progress_tracker.dart';
 import 'package:workout_ai/widgets/workout_card.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:developer';
 
 class SplashScreen extends StatefulWidget {
@@ -515,18 +516,13 @@ class _SplashScreenState extends State<SplashScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Hero(
-          tag: 'app_logo',
-          child: Image.asset(
-            'assets/workout_logo.png',
-            height: 100,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(
-                Icons.fitness_center,
-                size: 32,
-                color: Colors.black,
-              );
-            },
+        Text(
+          'WorkOut AI',
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            letterSpacing: 1.2,
           ),
         ),
         TextButton.icon(

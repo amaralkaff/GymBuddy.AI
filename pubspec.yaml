@@ -1,6 +1,6 @@
 name: workout_ai
 description: "AI-powered workout app featuring push-up counting with ML Kit and other exercise tracking capabilities"
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
@@ -15,7 +15,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_bloc: ^8.1.3
   google_ml_kit: ^0.19.0
-  google_mlkit_commons: ^0.9.0  # Updated from ^0.5.0
+  google_mlkit_commons: ^0.9.0
+  google_fonts: ^6.1.0
   image_picker: ^1.0.1
   camera: ^0.10.5+2
   path: ^1.8.3
