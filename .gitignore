@@ -47,8 +47,6 @@ app.*.map.json
 # VSCode
 .vscode/
 
-
-
 # Xcode
 /ios/
 
