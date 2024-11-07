@@ -20,7 +20,7 @@ class _SitUpDetectorViewState extends State<SitUpDetectorView> {
   final PoseDetector _poseDetector = PoseDetector(
     options: PoseDetectorOptions(),
   );
-  
+
   bool _canProcess = true;
   bool _isBusy = false;
   CustomPaint? _customPaint;
@@ -39,6 +39,7 @@ class _SitUpDetectorViewState extends State<SitUpDetectorView> {
   Widget build(BuildContext context) {
     return DetectorView(
       title: 'Sit-up Counter',
+      exerciseTitle: 'Sit-up Counter',
       customPaint: _customPaint,
       text: _text,
       onImage: _processImage,
@@ -59,20 +60,19 @@ class _SitUpDetectorViewState extends State<SitUpDetectorView> {
 
     try {
       final poses = await _poseDetector.processImage(inputImage);
-      
-      if (inputImage.metadata?.size != null && 
+
+      if (inputImage.metadata?.size != null &&
           inputImage.metadata?.rotation != null) {
-            
         final painter = PosePainter(
           poses,
           inputImage.metadata!.size,
           inputImage.metadata!.rotation,
           _cameraLensDirection,
         );
-        
+
         _customPaint = CustomPaint(painter: painter);
         _posePainter = painter;
-        
+
         // Process sit-up detection
         if (poses.isNotEmpty) {
           final pose = poses.first;

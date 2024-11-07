@@ -1,18 +1,21 @@
-// lib/views/splash_screen.dart
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:workout_ai/models/auth_state.dart';
 import 'package:workout_ai/models/user_manager.dart';
+import 'package:workout_ai/models/user_profile_model.dart';
 import 'package:workout_ai/services/auth_service.dart';
+import 'package:workout_ai/services/user_profile_service.dart';
 import 'package:workout_ai/services/workout_info_service.dart';
 import 'package:workout_ai/views/auth/login_screen.dart';
 import 'package:workout_ai/views/pose_detection_view.dart';
 import 'package:workout_ai/views/sit_up_detector_view.dart';
 import 'package:workout_ai/widgets/progress_tracker.dart';
 import 'package:workout_ai/widgets/workout_card.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'dart:developer';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,8 +29,11 @@ class _SplashScreenState extends State<SplashScreen>
   late TabController _tabController;
   final WorkoutInfoService _workoutInfoService = WorkoutInfoService();
   final AuthService _authService = AuthService();
+  final UserProfileService _userProfileService = UserProfileService();
   List<WorkoutInfo> _workoutInfo = [];
+  UserProfile? _userProfile;
   bool _isLoading = true;
+  bool _isLoadingProfile = true;
   String? _error;
   DateTime? _lastLoadTime;
 
@@ -36,8 +42,46 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
-    _loadData();
+    _loadInitialData();
     _setPortraitOrientation();
+  }
+
+  void _handleTabChange() {
+    // Add tab change handling logic here
+    if (_tabController.index == 1) {
+      _loadWorkoutInfo();
+    }
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final profile = await _userProfileService.getUserProfile();
+      if (!mounted) return;
+      setState(() {
+        _userProfile = profile;
+        _isLoadingProfile = false;
+      });
+    } catch (e) {
+      log('Error loading user profile: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoadingProfile = false;
+      });
+    }
+  }
+
+  Future<void> _loadInitialData() async {
+    try {
+      await Future.wait([
+        _loadUserProfile(),
+        _loadWorkoutInfo(),
+      ]);
+    } catch (e) {
+      log('Error loading initial data: $e');
+      if (e.toString().contains('Authentication')) {
+        _navigateToLogin();
+      }
+    }
   }
 
   @override
@@ -48,26 +92,33 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  // Add tab change handler
-  void _handleTabChange() {
-    if (!_tabController.indexIsChanging) return;
-
-    // If switching to progress tab
-    if (_tabController.index == 1) {
-      // Check if we need to refresh
-      if (_shouldRefreshData()) {
-        _loadWorkoutInfo();
-      }
-    }
+  void _startExercise(BuildContext context, Widget view) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => view),
+    );
   }
 
-  bool _shouldRefreshData() {
-    if (_lastLoadTime == null) return true;
-
-    // Refresh if last load was more than 30 seconds ago
-    final now = DateTime.now();
-    final difference = now.difference(_lastLoadTime!);
-    return difference.inSeconds > 30;
+  Widget _buildHomeTab() {
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      color: const Color(0xFFE8FE54),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            _buildWelcomeSection(),
+            const SizedBox(height: 24),
+            _buildQuickStats(),
+            const SizedBox(height: 24),
+            _buildWorkoutCards(),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _loadWorkoutInfo() async {
@@ -131,80 +182,10 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
-  Future<void> _startExercise(
-      BuildContext context, Widget exerciseScreen) async {
-    try {
-      // Set landscape orientation before starting exercise
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-
-      if (!mounted) return;
-
-      // Navigate to exercise screen
-      final result = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => exerciseScreen,
-        ),
-      );
-
-      // Reset orientation and reload data if needed
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-
-      if (result == true && mounted) {
-        await _loadData();
-      }
-    } catch (e) {
-      debugPrint('Exercise screen error: $e');
-    }
-  }
-
-  String get _userName {
-    final user = context.read<UserManager>().userInfo;
-    return user?.username ?? '';
-  }
-
-  Widget _buildHomeTab() {
-    return RefreshIndicator(
-      onRefresh: _loadData,
-      color: const Color(0xFFE8FE54),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildWelcomeSection(),
-            const SizedBox(height: 24),
-            _buildWorkoutCards(),
-            const SizedBox(height: 24),
-            // _buildInstructions(),
-            // const SizedBox(height: 24),
-            _buildQuickStats(),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildWelcomeSection() {
     final now = DateTime.now();
     final hour = now.hour;
-
-    // Get appropriate greeting based on time of day
-    String greeting;
-    if (hour < 12) {
-      greeting = 'Good morning';
-    } else if (hour < 17) {
-      greeting = 'Good afternoon';
-    } else {
-      greeting = 'Good evening';
-    }
+    final greeting = _getGreeting(hour);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -231,46 +212,56 @@ class _SplashScreenState extends State<SplashScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$greeting,',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$greeting,',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
                     ),
-                    const SizedBox(height: 4),
+                  ),
+                  const SizedBox(height: 4),
+                  if (_isLoadingProfile)
+                    _buildLoadingShimmer()
+                  else
                     Text(
-                      _userName,
+                      _userProfile?.username ?? _userName,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ],
-                ),
+                ],
               ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8FE54).withOpacity(0.3),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _getGreetingIcon(hour),
-                  color: Colors.black,
-                  size: 24,
+              GestureDetector(
+                onTap: _showProfileModal,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.blue.shade100,
+                      width: 2,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.person_outline,
+                    color: Colors.blue,
+                    size: 24,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Container(
+            width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -281,7 +272,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(
                   Icons.local_fire_department,
@@ -305,18 +296,172 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  IconData _getGreetingIcon(int hour) {
-    if (hour < 6) {
-      return Icons.bedtime; // Night time
-    } else if (hour < 12) {
-      return Icons.wb_sunny; // Morning
+  void _showProfileModal() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.person,
+                    size: 32,
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _userProfile?.username ?? _userName,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (_userProfile?.email != null)
+                        Text(
+                          _userProfile!.email,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            if (_userProfile != null) ...[
+              _buildProfileInfoRow(
+                icon: Icons.height,
+                label: 'Height',
+                value: '${_userProfile!.height} cm',
+              ),
+              const SizedBox(height: 16),
+              _buildProfileInfoRow(
+                icon: Icons.monitor_weight_outlined,
+                label: 'Weight',
+                value: '${_userProfile!.weight} kg',
+              ),
+            ],
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: _handleLogout,
+                icon: const Icon(Icons.logout, color: Colors.red),
+                label: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.red),
+                ),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.all(16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Colors.red),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 20, color: Colors.grey[700]),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 16,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadingShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 150,
+            height: 24,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: 100,
+            height: 16,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getGreeting(int hour) {
+    if (hour < 12) {
+      return 'Good morning';
     } else if (hour < 17) {
-      return Icons.wb_cloudy; // Afternoon
-    } else if (hour < 20) {
-      return Icons.wb_twilight; // Evening
+      return 'Good afternoon';
     } else {
-      return Icons.nightlight; // Night
+      return 'Good evening';
     }
+  }
+
+  String get _userName {
+    final user = context.read<UserManager>().userInfo;
+    return user?.username ?? '';
   }
 
   Widget _buildQuickStats() {
@@ -525,18 +670,6 @@ class _SplashScreenState extends State<SplashScreen>
             letterSpacing: 1.2,
           ),
         ),
-        TextButton.icon(
-          onPressed: _handleLogout,
-          icon: const Icon(Icons.logout),
-          label: const Text('Logout'),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.black54,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -603,7 +736,7 @@ class _SplashScreenState extends State<SplashScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Your Progress',
+                '',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -623,7 +756,7 @@ class _SplashScreenState extends State<SplashScreen>
           const SizedBox(height: 16),
           ProgressTracker(
             workouts: _workoutInfo,
-            isLoading: false, // We handle loading state in tab view
+            isLoading: _isLoading,
             error: _error,
             onRetry: _loadWorkoutInfo,
           ),
