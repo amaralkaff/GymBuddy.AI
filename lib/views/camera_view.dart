@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:workout_ai/models/exercise_completion_model.dart';
-import 'package:workout_ai/models/exercise_stats_model.dart';
-import 'package:workout_ai/models/push_up_model.dart';
-import 'package:workout_ai/models/sit_up_model.dart';
-import 'package:workout_ai/painters/pose_painter.dart';
-import 'package:workout_ai/services/pushup_service.dart';
-import 'package:workout_ai/utils/sit_up_utils.dart';
-import 'package:workout_ai/utils/utils.dart' as utils;
-import 'package:workout_ai/widgets/workout_completion_dialog.dart';
+import '../models/exercise_completion_model.dart';
+import '../models/exercise_stats_model.dart';
+import '../models/push_up_model.dart';
+import '../models/sit_up_model.dart';
+import '../painters/pose_painter.dart';
+import '../services/pushup_service.dart';
+import '../utils/sit_up_utils.dart';
+import '../utils/utils.dart' as utils;
+import '../widgets/workout_completion_dialog.dart';
 import 'dart:developer' as developer;
 
 class ExerciseStatsWidget extends StatelessWidget {

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:workout_ai/models/weight_manager.dart';
+import '../models/weight_manager.dart';
 
 class WeightConfirmationDialog extends StatefulWidget {
   final int currentWeight;

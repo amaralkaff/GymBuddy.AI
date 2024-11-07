@@ -4,9 +4,9 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:workout_ai/models/progress_data.dart' as progress;
-import 'package:workout_ai/services/progress_service.dart';
-import 'package:workout_ai/services/workout_info_service.dart';
+import '../models/progress_data.dart' as progress;
+import '../services/progress_service.dart';
+import '../services/workout_info_service.dart';
 
 enum ChartView { weight, calories }
 

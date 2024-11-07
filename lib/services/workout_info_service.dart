@@ -1,6 +1,6 @@
 // lib/services/workout_info_service.dart
 import 'dart:developer';
-import 'package:workout_ai/services/api_service.dart';
+import '../services/api_service.dart';
 
 class WorkoutInfoService {
   final APIService _api = APIService();

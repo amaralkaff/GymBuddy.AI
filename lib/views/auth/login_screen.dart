@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:workout_ai/views/splash_screen.dart';
+import '../splash_screen.dart';
 import '../../models/auth_state.dart';
 import '../../models/user_manager.dart';
 import '../../models/user_info_model.dart';

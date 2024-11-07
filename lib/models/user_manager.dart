@@ -1,7 +1,7 @@
 // lib/models/user_manager.dart
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:workout_ai/models/user_info_model.dart';
+import '../models/user_info_model.dart';
 
 class UserManager extends Cubit<UserInfo?> {
   UserManager() : super(null);

@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:workout_ai/models/auth_state.dart';
-import 'package:workout_ai/models/exercise_completion_model.dart';
-import 'package:workout_ai/models/exercise_stats_model.dart';
-import 'package:workout_ai/models/push_up_model.dart';
-import 'package:workout_ai/models/sit_up_model.dart';
-import 'package:workout_ai/models/user_manager.dart';
-import 'package:workout_ai/models/weight_manager.dart';
-import 'package:workout_ai/services/auth_service.dart';
-import 'package:workout_ai/views/auth/login_screen.dart';
-import 'package:workout_ai/views/splash_screen.dart';
+import '../models/auth_state.dart';
+import '../models/exercise_completion_model.dart';
+import '../models/exercise_stats_model.dart';
+import '../models/push_up_model.dart';
+import '../models/sit_up_model.dart';
+import '../models/user_manager.dart';
+import '../models/weight_manager.dart';
+import '../services/auth_service.dart';
+import '../views/auth/login_screen.dart';
+import '../views/splash_screen.dart';
 
 Future<void> main() async {
   // Ensure Flutter is initialized

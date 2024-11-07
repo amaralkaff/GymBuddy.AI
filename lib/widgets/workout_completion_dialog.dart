@@ -1,11 +1,11 @@
 // lib/widgets/workout_completion_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:workout_ai/models/exercise_completion_model.dart';
-import 'package:workout_ai/models/exercise_stats_model.dart';
-import 'package:workout_ai/services/pushup_service.dart';
-import 'package:workout_ai/services/situp_service.dart';
-import 'package:workout_ai/views/splash_screen.dart';
+import '../models/exercise_completion_model.dart';
+import '../models/exercise_stats_model.dart';
+import '../services/pushup_service.dart';
+import '../services/situp_service.dart';
+import '../views/splash_screen.dart';
 
 class WorkoutCompletionDialog extends StatefulWidget {
   final String exerciseType;

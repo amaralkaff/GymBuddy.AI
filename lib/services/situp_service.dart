@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
-import 'package:workout_ai/services/auth_service.dart';
+import '../services/auth_service.dart';
 
 class SitUpService {
   static const String baseUrl = 'https://backend-workout-ai.vercel.app/api';

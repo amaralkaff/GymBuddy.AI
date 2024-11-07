@@ -1,5 +1,5 @@
 // lib/models/user_profile_state.dart
-import 'package:workout_ai/models/user_profile_model.dart';
+import '../models/user_profile_model.dart';
 
 enum UserProfileStatus { loading, success, error }
 

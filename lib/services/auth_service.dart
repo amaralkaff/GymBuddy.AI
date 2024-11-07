@@ -2,8 +2,8 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workout_ai/models/user_info_model.dart';
-import 'package:workout_ai/services/api_service.dart';
+import '../models/user_info_model.dart';
+import '../services/api_service.dart';
 
 class AuthService {
   static String? _token;

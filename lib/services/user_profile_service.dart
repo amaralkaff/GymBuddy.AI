@@ -1,8 +1,8 @@
 // lib/services/user_profile_service.dart
 import 'dart:developer';
 
-import 'package:workout_ai/models/user_profile_model.dart';
-import 'package:workout_ai/services/api_service.dart';
+import '../models/user_profile_model.dart';
+import '../services/api_service.dart';
 
 class UserProfileService {
   final APIService _api = APIService();

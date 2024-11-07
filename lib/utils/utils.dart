@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:workout_ai/models/push_up_model.dart';
+import '../models/push_up_model.dart';
 
 Future<String> getAssetPath(String asset) async {
   final path = await getLocalPath(asset);

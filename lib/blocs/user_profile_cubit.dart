@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:workout_ai/models/user_profile_state.dart';
-import 'package:workout_ai/services/user_profile_service.dart';
+import '../models/user_profile_state.dart';
+import '../services/user_profile_service.dart';
 
 class UserProfileCubit extends Cubit<UserProfileState> {
   final UserProfileService _profileService;

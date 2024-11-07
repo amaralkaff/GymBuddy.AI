@@ -1,4 +1,4 @@
-name: workout_ai
+name: WorkoutAI
 description: "AI-powered workout app featuring push-up counting with ML Kit and other exercise tracking capabilities"
 publish_to: "none"
 version: 1.0.0+1

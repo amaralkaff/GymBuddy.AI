@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:workout_ai/models/exercise_completion_model.dart';
+import '../models/exercise_completion_model.dart';
 
 enum TimerStatus {
   initial,

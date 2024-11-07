@@ -5,17 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:workout_ai/models/auth_state.dart';
-import 'package:workout_ai/models/user_manager.dart';
-import 'package:workout_ai/models/user_profile_model.dart';
-import 'package:workout_ai/services/auth_service.dart';
-import 'package:workout_ai/services/user_profile_service.dart';
-import 'package:workout_ai/services/workout_info_service.dart';
-import 'package:workout_ai/views/auth/login_screen.dart';
-import 'package:workout_ai/views/pose_detection_view.dart';
-import 'package:workout_ai/views/sit_up_detector_view.dart';
-import 'package:workout_ai/widgets/progress_tracker.dart';
-import 'package:workout_ai/widgets/workout_card.dart';
+import '../models/auth_state.dart';
+import '../models/user_manager.dart';
+import '../models/user_profile_model.dart';
+import '../services/auth_service.dart';
+import '../services/user_profile_service.dart';
+import '../services/workout_info_service.dart';
+import '../views/auth/login_screen.dart';
+import '../views/pose_detection_view.dart';
+import '../views/sit_up_detector_view.dart';
+import '../widgets/progress_tracker.dart';
+import '../widgets/workout_card.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

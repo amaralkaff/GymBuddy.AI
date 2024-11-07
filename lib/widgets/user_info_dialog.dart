@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:workout_ai/models/auth_state.dart';
-import 'package:workout_ai/services/auth_service.dart';
+import '../models/auth_state.dart';
+import '../services/auth_service.dart';
 import '../models/user_info_model.dart';
 import '../models/user_manager.dart';
 import 'dart:developer';

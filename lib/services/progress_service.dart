@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:workout_ai/models/progress_data.dart';
-import 'package:workout_ai/services/api_service.dart';
+import '../models/progress_data.dart';
+import '../services/api_service.dart';
 
 class ProgressService {
   final APIService _api = APIService();

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.workout_ai"
+    namespace = "com.workout.ai"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.workout_ai"
+        applicationId = "com.workout.ai"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
